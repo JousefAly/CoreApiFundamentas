@@ -24,16 +24,33 @@ namespace CoreCodeCamp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCamps()
+        public async Task<ActionResult<CampModel[]>> Get()
         {
             try
             {
                 var results = await _campRepository.GetAllCampsAsync();
-                CampModel[] models = _mapper.Map<CampModel[]>(results);                
-                return Ok(models);
+                return _mapper.Map<CampModel[]>(results);
+
             }
-            catch(Exception)
+            catch (Exception)
             {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+        }
+
+        [HttpGet("{moniker}")]
+        public async Task<ActionResult<CampModel>> Get(string moniker)
+        {
+            try
+            {
+                var result = await _campRepository.GetCampAsync(moniker);
+                if (result == null)
+                    return NotFound();
+                return _mapper.Map<CampModel>(result);
+            }
+            catch (Exception)
+            {
+
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
         }
