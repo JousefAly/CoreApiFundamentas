@@ -3,6 +3,7 @@ using CoreCodeCamp.Data;
 using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +13,19 @@ using System.Threading.Tasks;
 namespace CoreCodeCamp.Controllers
 {
     [Route("api/[Controller]")]
+    [ApiController]
     public class CampsController : ControllerBase
     {
         private readonly ICampRepository _campRepository;
         private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
 
-        public CampsController(ICampRepository campRepository, IMapper mapper)
+        public CampsController(ICampRepository campRepository, IMapper mapper
+                                LinkGenerator linkGenerator)
         {
             _campRepository = campRepository;
             _mapper = mapper;
+            _linkGenerator = linkGenerator;
         }
 
         [HttpGet]
@@ -68,6 +73,22 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CampModel>> Post(CampModel model)
+        {
+            try
+            {
+                var location = _linkGenerator.GetPathByAction("Get", "Camps",
+                                                                new { moniker = model.Moniker });
+                return Created(location);
+            }
+            catch (Exception)
+            {
+
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
         }
