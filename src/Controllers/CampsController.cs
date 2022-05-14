@@ -1,4 +1,5 @@
 ﻿using CoreCodeCamp.Data;
+using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -25,6 +26,7 @@ namespace CoreCodeCamp.Controllers
             try
             {
                 var result = await _campRepository.GetAllCampsAsync();
+                //CampModel[] = ;
                 return Ok(result);
             }
             catch(Exception)
