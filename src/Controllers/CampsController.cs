@@ -20,7 +20,7 @@ namespace CoreCodeCamp.Controllers
         private readonly IMapper _mapper;
         private readonly LinkGenerator _linkGenerator;
 
-        public CampsController(ICampRepository campRepository, IMapper mapper
+        public CampsController(ICampRepository campRepository, IMapper mapper,
                                 LinkGenerator linkGenerator)
         {
             _campRepository = campRepository;
@@ -84,13 +84,19 @@ namespace CoreCodeCamp.Controllers
             {
                 var location = _linkGenerator.GetPathByAction("Get", "Camps",
                                                                 new { moniker = model.Moniker });
-                return Created(location);
+                var camp = _mapper.Map<Camp>(model);
+                _campRepository.Add(camp);
+                if (await _campRepository.SaveChangesAsync())
+                {
+                    return Created(location, _mapper.Map<CampModel>(camp));
+                }
             }
             catch (Exception)
             {
 
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
+            return BadRequest();
         }
     }
 }
